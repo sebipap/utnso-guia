@@ -1,86 +1,108 @@
-#include "commons/txt.h"
 #include "commons/string.h"
+#include "commons/txt.h"
 #include "commons/collections/list.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 
 typedef struct
 {
-	char* region;
-	char *fullName;
-	int age;
-	int phone;
-	int dni;
-	int saldo;
+  char *region;
+  char *fullName;
+  int age;
+  char *phoneNumber;
+  char *id;
+  long balance;
 } Person;
 
-char *char_to_string(char);
-int times(char, char *);
+void removeLastLineFeed(char *);
+char *getLine(FILE *);
+int occurrencesOfChar(char *, char);
+int fieldsAmount(char *);
+char **getFields(char *);
+void fillPersonWithFields(Person *, char **);
+void initPerson(Person *);
+char *personToString(Person);
 
-int main(void)
+int main()
 {
 
-	FILE *inputFile = fopen("personas.txt", "r");
+  FILE *inputFile = fopen("Personas.txt", "r");
 
-	char *fileString = string_new();
+  while (!feof(inputFile))
+  {
+    char *line = getLine(inputFile);
+    char **personFields = getFields(line);
 
-	while (!feof(inputFile))
-		string_append(&fileString, char_to_string(fgetc(inputFile)));
+    Person person;
+    initPerson(&person);
+    fillPersonWithFields(&person, personFields);
+    puts(personToString(person));
+  }
 
-	fclose(inputFile);
+  txt_close_file(inputFile);
 
-	int peopleAmount = times('\n', fileString) + 1;
-
-	char **lines = string_n_split(fileString, peopleAmount, "\n");
-
-	t_list *people = list_create();
-
-	for (int i = 0; i < peopleAmount; i++)
-	{
-		char **fields = string_n_split(lines[i], 6, "; ");
-		Person *person = malloc(sizeof(Person));
-
-		person -> region = fields[0];
-		person -> fullName = fields[1];
-		person -> age = atoi(fields[2]);
-		person -> phone = atoi(fields[3]);
-		person -> dni = atoi(fields[4]);
-		person -> saldo = atoi(fields[5]);
-
-		list_add(people, person);
-	}
-
-	//FILE* outputFile = txt_open_for_append("output.txt");
-
-	for (int i = 0; i < peopleAmount; i++)
-	{
-		Person *person = list_get(people, i);
-		char* outputString = string_from_format("%s | %d | %d | %.30s | %d \n", person->region, person->age, person->dni, person->fullName, person->phone);
-			
-		if(person->age >= 18)
-			printf("%s", outputString)
-			//txt_write_in_file(outputFile, outputString);
-	}
-
-	return 0;
+  return 0;
 }
 
-char *char_to_string(char c)
+void removeLastLineFeed(char *text)
 {
-	char *tmp = malloc(sizeof(char) * 2);
-	sprintf(tmp, "%c", c);
-
-	return tmp;
+  if (text[string_length(text) - 1] == '\n')
+    text[string_length(text) - 2] = '\0';
 }
 
-int times(char character, char *string)
+char *getLine(FILE *file)
 {
-	int times = 0;
+  char *line = string_new();
+  int bufSize = 0;
+  int lineSize = getline(&line, &bufSize, file);
 
-	for (int i = 0; i < string_length(string); i++)
-		if (string[i] == character)
-			times++;
+  removeLastLineFeed(line);
 
-	return times;
+  return line;
+}
+
+int occurrencesOfChar(char *string, char character)
+{
+  int counter = 0;
+
+  for (int i = 0; i < string_length(string); i++)
+    if (string[i] == character)
+      counter++;
+
+  return counter;
+}
+
+int fieldsAmount(char *string)
+{
+  return occurrencesOfChar(string, ';') + 1;
+}
+
+char **getFields(char *string)
+{
+  return string_n_split(string, fieldsAmount(string), "; ");
+}
+
+void fillPersonWithFields(Person *person, char **fields)
+{
+  person->region = string_duplicate(fields[0]);
+  person->fullName = string_duplicate(fields[1]);
+  person->age = atoi(fields[2]);
+  person->phoneNumber = string_duplicate(fields[3]);
+  person->id = string_duplicate(fields[4]);
+  person->balance = atol(fields[5]);
+}
+
+void initPerson(Person *person)
+{
+  person->region = string_new();
+  person->fullName = string_new();
+  person->age = 0;
+  person->phoneNumber = string_new();
+  person->id = string_new();
+  person->balance = 0;
+}
+
+char *personToString(Person person)
+{
+  return string_from_format("%s | %d | %s | %.30s | %s", person.region, person.age, person.id, person.fullName, person.phoneNumber);
 }
