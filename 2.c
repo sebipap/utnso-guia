@@ -23,7 +23,9 @@ void fillPersonWithFields(Person *, char **);
 void initPerson(Person *);
 char *personToString(Person *);
 void writePeopleInFile(t_list *);
-bool conditionToOrderByRegiorOrAge(void *a, void *b);
+bool orderByRegion(void *, void *);
+bool orderByAge(void *, void *);
+bool orderByRegionAndAge(void *, void *);
 
 int main()
 {
@@ -47,6 +49,7 @@ int main()
       continue;
   }
 
+  list_sort(people, &orderByRegionAndAge);
   writePeopleInFile(people);
 
   list_destroy(people);
@@ -132,25 +135,21 @@ void writePeopleInFile(t_list *people)
   txt_close_file(outputFile);
 }
 
-bool conditionToOrderByRegiorOrAge(void *a, void *b)
+bool orderByRegion(void *person, void *otherPerson)
 {
-  char *aRegion = string_duplicate(((Person *)a)->region);
-  char *bRegion = string_duplicate(((Person *)b)->region);
+  return strcmp(((Person *)otherPerson)->region, ((Person *)person)->region);
+}
 
-  int aAge = ((Person *)a)->age;
-  int bAge = ((Person *)b)->age;
+bool orderByAge(void *person, void *otherPerson)
+{
+  return ((Person *)person)->age < ((Person *)otherPerson)->age;
+}
 
-  if (strcmp(aRegion, bRegion) < 0)
-    return -1;
-  else if (strcmp(aRegion, bRegion) > 0)
-    return 1;
+bool orderByRegionAndAge(void *person, void *otherPerson)
+{
+  bool regionBool = orderByRegion(person, otherPerson);
+  if (!regionBool)
+    return orderByAge(person, otherPerson);
   else
-  {
-    if (aAge > bAge)
-      return 1;
-    else if (aAge < bAge)
-      return -1;
-    else
-      return 1;
-  }
+    return regionBool;
 }
