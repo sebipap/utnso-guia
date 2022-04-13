@@ -28,7 +28,7 @@ bool orderByRegion(void *, void *);
 bool orderByAge(void *, void *);
 bool orderByRegionAndAge(void *, void *);
 t_log *initLogger();
-void terminateProgram(t_log *, t_list *);
+void terminateProgram(FILE *, t_log *, t_list *);
 
 int main()
 {
@@ -144,7 +144,7 @@ void writePeopleInFile(t_list *people)
 
 bool orderByRegion(void *person, void *otherPerson)
 {
-  return strcmp(((Person *)person)->region, ((Person *)otherPerson)->region) <= 0;
+  return strcmp(((Person *)person)->region, ((Person *)otherPerson)->region) < 0;
 }
 
 bool orderByAge(void *person, void *otherPerson)
@@ -155,6 +155,7 @@ bool orderByAge(void *person, void *otherPerson)
 bool orderByRegionAndAge(void *person, void *otherPerson)
 {
   bool regionBool = orderByRegion(person, otherPerson);
+
   if (!regionBool)
     return orderByAge(person, otherPerson);
   else
