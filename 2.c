@@ -37,12 +37,13 @@ int main()
     char *line = getLine(inputFile);
     char **personFields = getFields(line);
 
-    Person person;
-    initPerson(&person);
-    fillPersonWithFields(&person, personFields);
+    Person *person = malloc(sizeof(Person *));
+    initPerson(person);
 
-    if (person.age >= 18)
-      list_add(people, &person);
+    fillPersonWithFields(person, personFields);
+
+    if (person->age >= 18)
+      list_add(people, person);
     else
       continue;
   }
