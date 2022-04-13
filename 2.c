@@ -3,8 +3,8 @@
 #include "commons/collections/list.h"
 #include <stdio.h>
 #include <stdlib.h>
-
-typedef struct
+#include <string.h>
+typedef struct Person
 {
   char *region;
   char *fullName;
@@ -21,12 +21,16 @@ int fieldsAmount(char *);
 char **getFields(char *);
 void fillPersonWithFields(Person *, char **);
 void initPerson(Person *);
-char *personToString(Person);
+char *personToString(Person *);
+void writePeopleInFile(t_list *);
+bool conditionToOrderByRegiorOrAge(void *a, void *b);
 
 int main()
 {
 
   FILE *inputFile = fopen("Personas.txt", "r");
+
+  t_list *people = list_create();
 
   while (!feof(inputFile))
   {
@@ -36,8 +40,16 @@ int main()
     Person person;
     initPerson(&person);
     fillPersonWithFields(&person, personFields);
-    puts(personToString(person));
+
+    if (person.age >= 18)
+      list_add(people, &person);
+    else
+      continue;
   }
+
+  writePeopleInFile(people);
+
+  list_destroy(people);
 
   txt_close_file(inputFile);
 
@@ -102,7 +114,43 @@ void initPerson(Person *person)
   person->balance = 0;
 }
 
-char *personToString(Person person)
+char *personToString(Person *person)
 {
-  return string_from_format("%s | %d | %s | %.30s | %s", person.region, person.age, person.id, person.fullName, person.phoneNumber);
+  return string_from_format("%s | %d | %s | %.30s | %s\n", person->region, person->age, person->id, person->fullName, person->phoneNumber);
+}
+
+void writePeopleInFile(t_list *people)
+{
+  FILE *outputFile = txt_open_for_append("Salida.txt");
+
+  for (int i = 0; i < list_size(people); i++)
+  {
+    Person *person = (Person *)list_get(people, i);
+    txt_write_in_file(outputFile, personToString(person));
+  }
+
+  txt_close_file(outputFile);
+}
+
+bool conditionToOrderByRegiorOrAge(void *a, void *b)
+{
+  char *aRegion = string_duplicate(((Person *)a)->region);
+  char *bRegion = string_duplicate(((Person *)b)->region);
+
+  int aAge = ((Person *)a)->age;
+  int bAge = ((Person *)b)->age;
+
+  if (strcmp(aRegion, bRegion) < 0)
+    return -1;
+  else if (strcmp(aRegion, bRegion) > 0)
+    return 1;
+  else
+  {
+    if (aAge > bAge)
+      return 1;
+    else if (aAge < bAge)
+      return -1;
+    else
+      return 1;
+  }
 }
