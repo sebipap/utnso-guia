@@ -39,7 +39,6 @@ int main()
 
     Person *person = malloc(sizeof(Person *));
     initPerson(person);
-
     fillPersonWithFields(person, personFields);
 
     if (person->age >= 18)
