@@ -137,7 +137,7 @@ void writePeopleInFile(t_list *people)
 
 bool orderByRegion(void *person, void *otherPerson)
 {
-  return strcmp(((Person *)otherPerson)->region, ((Person *)person)->region);
+  return strcmp(((Person *)person)->region, ((Person *)otherPerson)->region) <= 0;
 }
 
 bool orderByAge(void *person, void *otherPerson)
