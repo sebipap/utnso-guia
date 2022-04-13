@@ -1,9 +1,10 @@
-#include "commons/string.h"
-#include "commons/txt.h"
-#include "commons/collections/list.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "commons/log.h"
+#include "commons/string.h"
+#include "commons/txt.h"
+#include "commons/collections/list.h"
 typedef struct Person
 {
   char *region;
@@ -26,11 +27,15 @@ void writePeopleInFile(t_list *);
 bool orderByRegion(void *, void *);
 bool orderByAge(void *, void *);
 bool orderByRegionAndAge(void *, void *);
+t_log *initLogger();
+void terminateProgram(t_log *, t_list *);
 
 int main()
 {
 
   FILE *inputFile = fopen("Personas.txt", "r");
+
+  t_log *logger = initLogger();
 
   t_list *people = list_create();
 
@@ -44,7 +49,11 @@ int main()
     fillPersonWithFields(person, personFields);
 
     if (person->age >= 18)
+    {
       list_add(people, person);
+      if (person->balance < 100)
+        log_info(logger, (const char *)personToString(person));
+    }
     else
       continue;
   }
@@ -52,9 +61,7 @@ int main()
   list_sort(people, &orderByRegionAndAge);
   writePeopleInFile(people);
 
-  list_destroy(people);
-
-  txt_close_file(inputFile);
+  terminateProgram(inputFile, logger, people);
 
   return 0;
 }
@@ -152,4 +159,16 @@ bool orderByRegionAndAge(void *person, void *otherPerson)
     return orderByAge(person, otherPerson);
   else
     return regionBool;
+}
+
+t_log *initLogger()
+{
+  return log_create("Personas.log", "Persona", true, LOG_LEVEL_INFO);
+}
+
+void terminateProgram(FILE *file, t_log *logger, t_list *list)
+{
+  log_destroy(logger);
+  list_destroy(list);
+  txt_close_file(file);
 }
