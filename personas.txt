@@ -1,7 +1,0 @@
-Argentina; Erik Quispe; 22; 3474387348; 232323; 30000
-Argentina; Seba Papa; 20; 483838; 232323; 20000
-Argentina; Agus Bernal; 21; 737832; 2373278; 12882
-Argentina; Pepito Bernal; 16; 737832; 2373278; 12882
-Brasil; Erikinho Quispe; 22; 3474387348; 232323; 30000
-Brasil; Sebainho Papa; 20; 483838; 232323; 20000
-Brasil; Agusinho Bernal; 21; 737832; 2373278; 12882
